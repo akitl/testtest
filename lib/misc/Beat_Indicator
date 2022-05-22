@@ -1,0 +1,55 @@
+import 'dart:ui';
+
+import 'package:flame/components.dart';
+import 'package:flame/input.dart';
+import 'package:flame/palette.dart';
+import 'package:tinder_nft/GameSystme/TempoManager.dart';
+
+import 'beats.dart';
+import 'TempoManager.dart';
+
+class BeatsIndicator extends SpriteComponent {
+  Vector2 pos = Vector2.zero();
+  Vector2? dragDeltaPosition;
+  bool get isDragging => dragDeltaPosition != null;
+  List<Beats> beats = [];
+  late Vector2 velocity;
+  int beatIndex = 1;
+  int halfSize = 25;
+  bool move = true;
+  int number = 1;
+  double gameSpeed;
+
+  // creates a component that renders the crate.png sprite, with size 16 x 16
+  BeatsIndicator(this.pos, this.beats, this.gameSpeed ) : super(size: Vector2.all(50)) {
+    pos = position;
+  }
+
+  Future<void> onLoad() async {
+    halfSize = (size.x / 2).toInt();
+    sprite = await Sprite.load('beats.png');
+    position = Vector2(pos.x - halfSize, pos.y - halfSize);
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    if (TempoManager().move) {
+      Vector2 newPosition = Vector2(
+          beats[beatIndex].pos.x - halfSize, beats[beatIndex].pos.y - halfSize);
+      if (position == newPosition) {
+        beatIndex++;
+        if (beatIndex == beats.length) {
+          beatIndex = 1;
+          position = beats[0].pos;
+          TempoManager().time = 0;
+        }
+      }
+      position.moveToTarget(newPosition, gameSpeed);
+    }
+  }
+
+
+
+}

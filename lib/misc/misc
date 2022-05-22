@@ -1,0 +1,182 @@
+// design part second time
+// import 'dart:ui';
+// import 'GameSystme/beats.dart';
+// import 'package:flame/game.dart';
+// import 'package:flame/input.dart';
+// import 'package:flame/effects.dart';
+
+// class TinderBeats extends FlameGame with TapDetector, HasDraggables  {
+
+//   int beatsTotal = 5;
+//   int beatsCount = 0;
+
+//   @override
+//   bool onTapDown(TapDownInfo info) {
+//     print("Player tap down on ${info.eventPosition.game}");
+//     if (beatsCount < beatsTotal){
+//     add(Beats(info.eventPosition.game,beatsCount+1)
+//     ..add(
+//           ScaleEffect.to(
+//             Vector2.all(1.2),
+//             InfiniteEffectController(
+//               SequenceEffectController([
+//                 LinearEffectController(0.2),
+//                 ReverseLinearEffectController(0.5),
+
+//               ]),
+//             ),
+//           ),
+//         ),
+//     );
+//     beatsCount++;
+//     }
+//     return true;
+//   }
+
+//   @override
+//   bool onTapUp(TapUpInfo info) {
+//     print("Player tap up on ${info.eventPosition.game}");
+//     return true;
+//   }
+// }
+
+class TinderBeats extends FlameGame with FPSCounter, HasTappables {
+  List<Beats> beats = [];
+  LineRenderer? lr;
+  double gameSpeed = 3;
+
+  Future<void> onLoad() async {
+    beats.add(Beats(Vector2(60, 100), 1));
+    beats.add(Beats(Vector2(180, 318), 2));
+    beats.add(Beats(Vector2(110, 420), 3));
+    beats.add(Beats(Vector2(189, 420), 4));
+    beats.add(Beats(Vector2(300, 145), 5));
+    add(LineRenderer(beats));
+
+    for (var i = 0; i < beats.length; i++) {
+      add(
+        beats[i]
+          ..add(
+            ScaleEffect.to(
+              Vector2.all(1.2),
+              InfiniteEffectController(
+                SequenceEffectController([
+                  LinearEffectController(0.2),
+                  ReverseLinearEffectController(0.5),
+                ]),
+              ),
+            ),
+          ),
+      );
+    }
+    BeatsIndicator bi = BeatsIndicator(beats[0].pos, beats, gameSpeed);
+    add(bi);
+    add(TempoManager());
+
+    double res = 0;
+    //compute the distance between each beat
+    for (var i = 0; i < beats.length; i++) {
+      double dist =
+          (beats[i].pos.distanceTo(beats[(i + 1) % beats.length].pos));
+      beats[(i + 1) % beats.length].beatTiming = res += dist / (gameSpeed * 60);
+    }
+    TempoManager().beats = beats;
+  }
+}
+
+class Beats extends SpriteComponent with Tappable {
+  Vector2 pos = Vector2.zero();
+  int number = 1;
+  double halfSize = 25;
+  double beatTiming = 0;
+
+  // creates a component that renders the crate.png sprite, with size 16 x 16
+  Beats(Vector2 position, this.number) : super(size: Vector2.all(50)) {
+    pos = position;
+  }
+
+  Future<void> onLoad() async {
+    halfSize = size.x / 2;
+    sprite = await Sprite.load('beats.png');
+    position = Vector2(pos.x - halfSize, pos.y - halfSize);
+    add(TextComponent(text: number.toString())
+      ..anchor = Anchor.center
+      ..x = halfSize // size is a property from game
+      ..y = halfSize);
+  }
+
+  @override
+  bool onTapDown(TapDownInfo info) {
+    if (TempoManager().TapOnBeat(number)) {
+      add(TextComponent(text: "Ok !")
+        ..anchor = Anchor.center
+        ..x = halfSize * 2 // size is a property from game
+        ..y = halfSize * 2);
+    }
+    return true;
+  }
+}
+
+
+// desing Beats
+// import 'dart:ui';
+
+// import 'package:flame/components.dart';
+// import 'package:flame/input.dart';
+// import 'package:flame/palette.dart';
+
+// class Beats extends SpriteComponent with Draggable {
+//   Vector2 pos = Vector2.zero();
+//   Vector2? dragDeltaPosition;
+//   bool get isDragging => dragDeltaPosition != null;
+//   int number = 1;
+
+//   // creates a component that renders the crate.png sprite, with size 16 x 16
+//   Beats(Vector2 position, this.number) : super(size: Vector2.all(50)) {
+//     pos = position;
+//   }
+
+//   Future<void> onLoad() async {
+//     final style = TextStyle(color: BasicPalette.white.color);
+//     sprite = await Sprite.load('beats.png');
+//     position = Vector2(pos.x - 25, pos.y - 25);
+//     add(TextComponent(text: number.toString())
+//       ..anchor = Anchor.center
+//       ..x = 25 // size is a property from game
+//       ..y = 25);
+//     //anchor = Anchor.center;
+//   }
+
+//   @override
+//   void onGameResize(Vector2 gameSize) {
+//     super.onGameResize(gameSize);
+//     // We don't need to set the position in the constructor, we can set it directly here since it will
+//     // be called once before the first time it is rendered.
+//     position = gameSize / 2;
+//   }
+
+//   bool onDragStart(DragStartInfo startPosition) {
+//     dragDeltaPosition = startPosition.eventPosition.game - position;
+//     return false;
+//   }
+
+//   @override
+//   bool onDragUpdate(DragUpdateInfo event) {
+//     if (isDragging) {
+//       final localCoords = event.eventPosition.game;
+//       position = localCoords - dragDeltaPosition!;
+//     }
+//     return false;
+//   }
+
+//   @override
+//   bool onDragEnd(DragEndInfo event) {
+//     dragDeltaPosition = null;
+//     return false;
+//   }
+
+//   @override
+//   void update(double dt) {
+    
+//   }
+// }

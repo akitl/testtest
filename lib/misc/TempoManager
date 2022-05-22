@@ -1,0 +1,75 @@
+
+import 'package:flame/components.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:tinder_nft/GameSystme/Beat_Sequence.dart';
+import 'package:tinder_nft/GameSystme/beats.dart';
+
+class TempoManager extends Component {
+  static final TempoManager _singleton = TempoManager._internal();
+
+  factory TempoManager() {
+    return _singleton;
+  }
+  TempoManager._internal();
+
+  bool move = false;
+  double time = 0;
+  List<Beats> beats = [];
+
+  bool TapOnBeat(int i){
+    if (i == 1){
+      move = true;
+    }
+     print('res ${beats[i-1].beatTiming - time}');
+    if ((beats[i-1].beatTiming - time) < 0.1 && (beats[i-1].beatTiming - time) > -0.1){
+      print('tap on beat ${beats[i-1].beatTiming}');
+      remove(beats[i-1]);
+      return true;
+    }
+    return false;
+  }
+
+   @override
+  void update(double dt) {
+    super.update(dt);
+    if (move){
+      time+=dt;
+    }
+  }
+
+}
+
+class TempoManager2 extends Component {
+  static final TempoManager2 _singleton2 = TempoManager2._internal();
+
+  factory TempoManager2() {
+    return _singleton2;
+  }
+  TempoManager2._internal();
+
+  bool move = false;
+  double time = 0;
+  List<Beats2> beats = [];
+
+  bool TapOnBeat(int i){
+    
+    //  print('res ${beats[i-1].beatTiming - time}');
+    // if ((beats[i-1].beatTiming - time) < 0.1 && (beats[i-1].beatTiming - time) > -0.1){
+    //   print('tap on beat ${beats[i-1].beatTiming}');
+    //   //remove(beats[i-1]);
+    //   return true;
+    // }
+    return true;
+  }
+
+   @override
+  void update(double dt) {
+    super.update(dt);
+    if (move){
+      time+=dt;
+    }
+    //print('exist ${beats.length}');
+  }
+
+
+}
