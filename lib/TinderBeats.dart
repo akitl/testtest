@@ -9,7 +9,7 @@ import 'package:flame/components.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
 
-class TinderBeats2 extends FlameGame with FPSCounter, HasTappables {
+class TinderBeats2 extends FlameGame with FPSCounter, HasTappables , HasDraggables {
   late BeatSequence bs;
   double time = 0;
   double waitingTime = 2;

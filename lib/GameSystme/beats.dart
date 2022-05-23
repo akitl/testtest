@@ -1,11 +1,10 @@
-
 import 'package:tinder_nft/GameSystme/GameManager.dart';
 
 import 'package:flame/components.dart';
 import 'package:flame/input.dart';
 import 'package:flame/effects.dart';
 
-class Beats2 extends SpriteComponent with Tappable {
+class Beats2 extends SpriteComponent with Tappable, Draggable {
   Vector2 pos = Vector2.zero();
   int number = 0;
   double lifeTime = 0;
@@ -38,16 +37,16 @@ class Beats2 extends SpriteComponent with Tappable {
   @override
   bool onTapDown(TapDownInfo info) {
     if (!beatLost) {
-      
-      String t = GameManager().computeScore(lifeTime - time,center.distanceTo(info.eventPosition.game));
+      String t = GameManager().computeScore(
+          lifeTime - time, center.distanceTo(info.eventPosition.game));
       win = true;
       add(TextComponent(text: t)
         ..anchor = Anchor.center
         ..x = halfSize * 2 // size is a property from game
         ..y = halfSize * 2);
 
-      add(OpacityEffect.to(0, EffectController(duration: 0.4)));
-      add(RemoveEffect(delay: 0.5));
+      //add(OpacityEffect.to(0, EffectController(duration: 0.4)));
+      //add(RemoveEffect(delay: 0.5));
       return true;
     } else {
       return false;
@@ -66,6 +65,37 @@ class Beats2 extends SpriteComponent with Tappable {
       add(OpacityEffect.to(0, EffectController(duration: 0.4)));
       add(RemoveEffect(delay: 0.5));
     }
+
+    if (lunched){
+      position += lunchedVelocity * dt;
+    }
+  }
+
+  Vector2? dragDeltaPosition;
+  bool get isDragging => dragDeltaPosition != null;
+  bool lunched = false;
+  Vector2 lunchedVelocity = Vector2.zero();
+
+
+  bool onDragStart(DragStartInfo startPosition) {
+    dragDeltaPosition = startPosition.eventPosition.game - position;
+    return false;
+  }
+
+  @override
+  bool onDragUpdate(DragUpdateInfo event) {
+    if (isDragging) {
+      final localCoords = event.eventPosition.game;
+      position = localCoords - dragDeltaPosition!;
+    }
+    return false;
+  }
+
+  @override
+  bool onDragEnd(DragEndInfo event) {
+    dragDeltaPosition = null;
+    lunched = true;
+    lunchedVelocity = event.velocity;
+    return false;
   }
 }
-
